@@ -16,142 +16,159 @@
 
 </head>
 
+
 <body>
 
   <h2>📷 Wedding QR Scanner</h2>
 
   <p id="status">
-    Arahkan kamera ke QR Code undangan
+    Tekan tombol untuk membuka kamera
   </p>
+
+
+  <button
+    id="cameraButton"
+    onclick="startScanner()"
+  >
+    📷 BUKA KAMERA
+  </button>
+
 
   <div id="reader"></div>
 
 
   <script>
 
-    let html5QrCode;
+    let html5QrCode = null;
 
-    let isScanning = true;
+    let isScanning = false;
 
 
-    // URL Wedding Check-in App
     const WEDDING_APP_URL =
       'https://script.google.com/macros/s/AKfycbxRNJvUumDLBz44jpRFk0u35XOVRMmQMwzHfEPJAjloRaNle12_DBjPt8hWuh3QwOfK-Q/exec';
 
 
     function startScanner() {
 
+      // Jangan buka kamera dua kali
+      if (isScanning) {
+        return;
+      }
+
+
+      isScanning = true;
+
+
+      document.getElementById(
+        'status'
+      ).innerHTML =
+        '⏳ Meminta akses kamera...';
+
+
+      document.getElementById(
+        'cameraButton'
+      ).style.display =
+        'none';
+
+
       html5QrCode =
         new Html5Qrcode('reader');
 
 
-      Html5QrCode.getCameras()
+      html5QrCode.start(
 
-        .then(function(cameras) {
+        {
+          facingMode: {
+            ideal: 'environment'
+          }
+        },
 
-          if (!cameras ||
-              cameras.length === 0) {
+        {
+          fps: 10,
 
-            showResult(
-              '❌ Kamera tidak ditemukan'
-            );
+          qrbox: {
+            width: 250,
+            height: 250
+          }
+        },
 
+
+        function(qrCodeMessage) {
+
+          if (!isScanning) {
             return;
-
           }
 
 
-          const cameraId =
-            cameras[
-              cameras.length - 1
-            ].id;
+          isScanning = false;
 
 
-          html5QrCode.start(
-
-            cameraId,
-
-            {
-              fps: 10,
-
-              qrbox: {
-                width: 250,
-                height: 250
-              }
-
-            },
+          document.getElementById(
+            'status'
+          ).innerHTML =
+            '✅ QR berhasil! Membuka data tamu...';
 
 
-            function(qrCodeMessage) {
+          html5QrCode.stop()
 
-              if (!isScanning) {
-                return;
-              }
+            .then(function() {
 
+              redirectToWeddingApp(
+                qrCodeMessage
+              );
 
-              isScanning = false;
+            })
 
+            .catch(function() {
 
-              document.getElementById(
-                'status'
-              ).innerHTML =
-                '✅ QR berhasil! Membuka data tamu...';
+              redirectToWeddingApp(
+                qrCodeMessage
+              );
 
+            });
 
-              html5QrCode.stop()
-
-
-                .then(function() {
-
-                  setTimeout(function() {
-
-                    window.location.href =
-                      WEDDING_APP_URL +
-                      '?guestId=' +
-                      encodeURIComponent(
-                        qrCodeMessage
-                      );
-
-                  }, 500);
-
-                });
-
-            },
+        },
 
 
-            function(errorMessage) {
+        function(errorMessage) {
 
-              // QR belum ditemukan
+          // QR belum ditemukan
+          // Tidak perlu tampilkan error
 
-            }
+        }
 
-          );
+      )
 
-        })
+      .catch(function(error) {
 
-        .catch(function(error) {
+        isScanning = false;
 
-          showResult(
-            '❌ Error kamera: ' +
-            error
-          );
 
-        });
+        document.getElementById(
+          'status'
+        ).innerHTML =
+          '❌ Tidak dapat membuka kamera: ' +
+          error.name;
+
+
+        document.getElementById(
+          'cameraButton'
+        ).style.display =
+          'block';
+
+      });
 
     }
 
 
-    function showResult(message) {
+    function redirectToWeddingApp(guestId) {
 
-      document.body.insertAdjacentHTML(
-        'beforeend',
-        '<p>' + message + '</p>'
-      );
+      window.location.href =
+        WEDDING_APP_URL +
+        '?guestId=' +
+        encodeURIComponent(guestId);
 
     }
-
-
-    startScanner();
 
   </script>
 
