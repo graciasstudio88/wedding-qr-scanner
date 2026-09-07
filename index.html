@@ -1,71 +1,43 @@
-<!DOCTYPE html>
-<html>
+<script>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+function testCamera() {
 
-  <title>CAMERA TEST V2</title>
-</head>
+  document.getElementById('result').innerHTML =
+    '⏳ Meminta akses kamera belakang...';
 
-<body>
+  navigator.mediaDevices
+    .getUserMedia({
 
-  <h1>📷 CAMERA TEST V2</h1>
+      video: {
+        facingMode: {
+          ideal: 'environment'
+        }
+      },
 
-  <button onclick="testCamera()">
-    BUKA KAMERA
-  </button>
+      audio: false
 
-  <p id="result"></p>
+    })
 
-  <video
-    id="video"
-    autoplay
-    playsinline
-    style="width:100%; max-width:500px;"
-  ></video>
-
-
-  <script>
-
-    function testCamera() {
+    .then(function(stream) {
 
       document.getElementById('result').innerHTML =
-        '⏳ Meminta akses kamera...';
+        '✅ KAMERA BELAKANG BERHASIL!';
 
+      document.getElementById('video').srcObject =
+        stream;
 
-      navigator.mediaDevices
-        .getUserMedia({
-          video: true,
-          audio: false
-        })
+    })
 
-        .then(function(stream) {
+    .catch(function(error) {
 
-          document.getElementById('result').innerHTML =
-            '✅ KAMERA BERHASIL!';
+      document.getElementById('result').innerHTML =
+        '❌ ERROR: ' +
+        error.name +
+        '<br>' +
+        error.message;
 
-          document.getElementById('video').srcObject =
-            stream;
+    });
 
-        })
+}
 
-        .catch(function(error) {
-
-          document.getElementById('result').innerHTML =
-            '❌ ERROR ASLI:<br><br>' +
-            '<b>Nama:</b> ' + error.name +
-            '<br>' +
-            '<b>Pesan:</b> ' + error.message +
-            '<br><br>' +
-            String(error);
-
-        });
-
-    }
-
-  </script>
-
-</body>
-
-</html>
+</script>
