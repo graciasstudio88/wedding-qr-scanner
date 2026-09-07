@@ -10,177 +10,390 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Camera Test</title>
+  <title>Wedding QR Scanner</title>
+
+
+  <!-- QR Scanner Library -->
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+
+  <style>
+
+    body {
+
+      margin: 0;
+
+      padding: 20px;
+
+      font-family: Arial, sans-serif;
+
+      background: #f5f5f5;
+
+      text-align: center;
+
+    }
+
+
+    .container {
+
+      max-width: 500px;
+
+      margin: auto;
+
+      background: white;
+
+      padding: 20px;
+
+      border-radius: 15px;
+
+    }
+
+
+    h1 {
+
+      font-size: 24px;
+
+    }
+
+
+    button {
+
+      width: 100%;
+
+      padding: 15px;
+
+      margin-top: 15px;
+
+      border: none;
+
+      border-radius: 10px;
+
+      font-size: 16px;
+
+      cursor: pointer;
+
+    }
+
+
+    #reader {
+
+      margin-top: 20px;
+
+      width: 100%;
+
+    }
+
+
+    #result {
+
+      margin-top: 20px;
+
+      padding: 15px;
+
+      border-radius: 10px;
+
+      background: #f0f0f0;
+
+      display: none;
+
+    }
+
+  </style>
 
 </head>
 
 
 <body>
 
-  <h2>📷 Camera Test</h2>
 
-  <p id="result">
-    Tekan tombol untuk membuka kamera belakang
+<div class="container">
+
+
+  <h1>💍 Wedding QR Scanner</h1>
+
+
+  <p id="status">
+
+    Tekan tombol untuk scan QR Code
+
   </p>
 
 
-  <button onclick="testCamera()">
-    📷 BUKA KAMERA BELAKANG
+  <button
+    id="scanButton"
+    onclick="startScanner()"
+  >
+
+    📷 BUKA KAMERA & SCAN QR
+
   </button>
 
 
-  <br><br>
+  <div id="reader"></div>
 
 
-  <video
-    id="video"
-    autoplay
-    playsinline
-    style="
-      width: 100%;
-      max-width: 500px;
-    "
-  ></video>
+  <div id="result"></div>
 
 
-  <script>
-
-    let currentStream = null;
+</div>
 
 
-    function testCamera() {
+<script>
 
 
-      document.getElementById(
-        'result'
-      ).innerHTML =
-        '⏳ Meminta akses kamera belakang...';
+let html5QrCode = null;
+
+let isScanning = false;
 
 
-      // Jika kamera sebelumnya masih aktif
-      if (currentStream) {
+/*
+=====================================
 
-        currentStream
-          .getTracks()
-          .forEach(function(track) {
+START SCANNER
 
-            track.stop();
+=====================================
+*/
 
-          });
+
+function startScanner() {
+
+
+  if (isScanning) {
+
+    return;
+
+  }
+
+
+  isScanning = true;
+
+
+  document.getElementById(
+    'scanButton'
+  ).style.display =
+    'none';
+
+
+  document.getElementById(
+    'status'
+  ).innerHTML =
+    '⏳ Membuka kamera belakang...';
+
+
+  document.getElementById(
+    'reader'
+  ).innerHTML =
+    '<div id="qr-reader"></div>';
+
+
+  html5QrCode =
+    new Html5Qrcode(
+      'qr-reader'
+    );
+
+
+  /*
+  PAKSA KAMERA BELAKANG
+  */
+
+
+  html5QrCode.start(
+
+    {
+
+      facingMode: {
+        exact: 'environment'
+      }
+
+    },
+
+
+    {
+
+      fps: 10,
+
+      qrbox: {
+
+        width: 250,
+
+        height: 250
 
       }
 
-
-      navigator.mediaDevices
-
-        .getUserMedia({
-
-          video: {
-
-            facingMode: {
-
-              exact: 'environment'
-
-            }
-
-          },
-
-          audio: false
-
-        })
+    },
 
 
-        .then(function(stream) {
+    function(qrCodeMessage) {
 
 
-          currentStream = stream;
+      /*
+      QR BERHASIL
+      */
 
 
-          document.getElementById(
-            'result'
-          ).innerHTML =
-            '✅ KAMERA BELAKANG BERHASIL DIBUKA!';
+      if (!isScanning) {
 
-
-          document.getElementById(
-            'video'
-          ).srcObject =
-            stream;
-
-
-        })
-
-
-        .catch(function(error) {
-
-
-          document.getElementById(
-            'result'
-          ).innerHTML =
-
-            '❌ ERROR KAMERA:<br><br>' +
-
-            '<b>Nama:</b> ' +
-            error.name +
-
-            '<br><br>' +
-
-            '<b>Pesan:</b> ' +
-            error.message +
-
-            '<br><br>' +
-
-            '<b>Error:</b> ' +
-            String(error);
-
-
-        });
-
-    }
-
-
-    function stopCamera() {
-
-
-      if (!currentStream) {
         return;
+
       }
 
 
-      currentStream
-        .getTracks()
-        .forEach(function(track) {
-
-          track.stop();
-
-        });
-
-
-      currentStream = null;
+      isScanning = false;
 
 
       document.getElementById(
-        'result'
+        'status'
       ).innerHTML =
-        '📷 Kamera dihentikan';
+        '✅ QR berhasil dibaca!';
 
 
-      document.getElementById(
-        'video'
-      ).srcObject =
-        null;
+      stopScanner();
+
+
+      showResult(
+
+        '🎉 QR CODE:<br><br>' +
+
+        '<b>' +
+
+        qrCodeMessage +
+
+        '</b>'
+
+      );
+
+
+    },
+
+
+    function(errorMessage) {
+
+
+      /*
+      QR BELUM TERBACA
+
+      NORMAL
+
+      */
 
 
     }
 
-  </script>
+  )
+
+  .catch(function(error) {
 
 
-  <br>
+    isScanning = false;
 
-  <button onclick="stopCamera()">
-    ⛔ STOP KAMERA
-  </button>
+
+    document.getElementById(
+      'status'
+    ).innerHTML =
+      '❌ Tidak dapat membuka kamera';
+
+
+    document.getElementById(
+      'scanButton'
+    ).style.display =
+      'block';
+
+
+    showResult(
+
+      '❌ ERROR:<br><br>' +
+
+      error
+
+    );
+
+
+  });
+
+
+}
+
+
+/*
+=====================================
+
+STOP SCANNER
+
+=====================================
+*/
+
+
+function stopScanner() {
+
+
+  if (!html5QrCode) {
+
+    return;
+
+  }
+
+
+  html5QrCode
+
+    .stop()
+
+    .then(function() {
+
+
+      document.getElementById(
+        'reader'
+      ).innerHTML =
+        '';
+
+
+    })
+
+
+    .catch(function(error) {
+
+
+      console.log(
+        error
+      );
+
+
+    });
+
+
+}
+
+
+/*
+=====================================
+
+SHOW RESULT
+
+=====================================
+*/
+
+
+function showResult(message) {
+
+
+  const result =
+    document.getElementById(
+      'result'
+    );
+
+
+  result.style.display =
+    'block';
+
+
+  result.innerHTML =
+    message;
+
+
+}
+
+
+</script>
 
 
 </body>
