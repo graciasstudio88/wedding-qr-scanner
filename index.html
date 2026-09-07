@@ -1,16 +1,71 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>TEST BARU 12345</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>CAMERA TEST V2</title>
 </head>
 
 <body>
 
-<h1>🚨 TEST BARU 12345</h1>
+  <h1>📷 CAMERA TEST V2</h1>
 
-<button onclick="alert('TOMBOL BARU BERHASIL')">
-  TEST TOMBOL
-</button>
+  <button onclick="testCamera()">
+    BUKA KAMERA
+  </button>
+
+  <p id="result"></p>
+
+  <video
+    id="video"
+    autoplay
+    playsinline
+    style="width:100%; max-width:500px;"
+  ></video>
+
+
+  <script>
+
+    function testCamera() {
+
+      document.getElementById('result').innerHTML =
+        '⏳ Meminta akses kamera...';
+
+
+      navigator.mediaDevices
+        .getUserMedia({
+          video: true,
+          audio: false
+        })
+
+        .then(function(stream) {
+
+          document.getElementById('result').innerHTML =
+            '✅ KAMERA BERHASIL!';
+
+          document.getElementById('video').srcObject =
+            stream;
+
+        })
+
+        .catch(function(error) {
+
+          document.getElementById('result').innerHTML =
+            '❌ ERROR ASLI:<br><br>' +
+            '<b>Nama:</b> ' + error.name +
+            '<br>' +
+            '<b>Pesan:</b> ' + error.message +
+            '<br><br>' +
+            String(error);
+
+        });
+
+    }
+
+  </script>
 
 </body>
+
 </html>
