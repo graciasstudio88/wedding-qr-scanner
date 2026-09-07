@@ -12,89 +12,51 @@
 
   <title>Wedding QR Scanner</title>
 
-
   <script src="https://unpkg.com/html5-qrcode"></script>
-
 
   <style>
 
     body {
-
       margin: 0;
-
       padding: 20px;
-
       font-family: Arial, sans-serif;
-
       background: #f5f5f5;
-
       text-align: center;
-
     }
-
 
     .container {
-
       max-width: 500px;
-
       margin: auto;
-
       background: white;
-
       padding: 20px;
-
       border-radius: 15px;
-
     }
-
 
     h1 {
-
       font-size: 24px;
-
     }
-
 
     button {
-
       width: 100%;
-
       padding: 15px;
-
       margin-top: 15px;
-
       border: none;
-
       border-radius: 10px;
-
       font-size: 16px;
-
       cursor: pointer;
-
     }
-
 
     #reader {
-
       margin-top: 20px;
-
       width: 100%;
-
     }
 
-
     #result {
-
       margin-top: 20px;
-
       padding: 15px;
-
       border-radius: 10px;
-
       background: #f0f0f0;
-
       display: none;
-
     }
 
   </style>
@@ -104,35 +66,24 @@
 
 <body>
 
-
 <div class="container">
-
 
   <h1>💍 Wedding QR Scanner</h1>
 
-
   <p id="status">
-
     Tekan tombol untuk scan QR Souvenir
-
   </p>
-
 
   <button
     id="scanButton"
     onclick="startScanner()"
   >
-
     🎁 SCAN QR SOUVENIR
-
   </button>
-
 
   <div id="reader"></div>
 
-
   <div id="result"></div>
-
 
 </div>
 
@@ -147,18 +98,24 @@ let isScanning = false;
 
 /*
 =====================================
+APPS SCRIPT URL TERBARU
+=====================================
+*/
+
+const WEDDING_APP_URL =
+  'https://script.google.com/macros/s/AKfycbyj7vpd3qCD3rHUIrNruLF7CyrS9uGWl4P_u9RJ0f-6eMS3WS2KE2zRoWfmmuMtj2cLLA/exec';
+
+
+/*
+=====================================
 START QR SCANNER
 =====================================
 */
 
-
 function startScanner() {
 
-
   if (isScanning) {
-
     return;
-
   }
 
 
@@ -167,8 +124,7 @@ function startScanner() {
 
   document.getElementById(
     'scanButton'
-  ).style.display =
-    'none';
+  ).style.display = 'none';
 
 
   document.getElementById(
@@ -189,53 +145,29 @@ function startScanner() {
     );
 
 
-  /*
-  BUKA KAMERA BELAKANG
-  */
-
-
   html5QrCode.start(
 
     {
-
       facingMode: {
-
         exact: 'environment'
-
       }
-
     },
 
-
     {
-
       fps: 10,
 
       qrbox: {
-
         width: 250,
-
         height: 250
-
       }
-
     },
-
-
-    /*
-    =========================
-    QR BERHASIL DIBACA
-    =========================
-    */
 
 
     function(qrCodeMessage) {
 
 
       if (!isScanning) {
-
         return;
-
       }
 
 
@@ -248,36 +180,20 @@ function startScanner() {
         '⏳ QR berhasil! Memproses souvenir...';
 
 
-      /*
-      STOP KAMERA
-      */
-
-
       html5QrCode.stop()
 
         .then(function() {
-
-
-          /*
-          TUNGGU SEBENTAR
-          */
-
 
           setTimeout(function() {
 
 
             /*
-            KIRIM GUEST ID
-            KE WEDDING APP
+            REDIRECT KE APPS SCRIPT
             */
 
-
             window.location.href =
-
-              'https://script.google.com/macros/s/AKfycbxRNJvUumDLBz44jpRFk0u35XOVRMmQMwzHfEPJAjloRaNle12_DBjPt8hWuh3QwOfK-Q/exec' +
-
+              WEDDING_APP_URL +
               '?souvenirId=' +
-
               encodeURIComponent(
                 qrCodeMessage
               );
@@ -285,33 +201,24 @@ function startScanner() {
 
           }, 500);
 
-
         })
 
 
         .catch(function(error) {
 
-
-          console.log(
-            error
-          );
+          console.log(error);
 
 
           /*
           TETAP REDIRECT
           */
 
-
           window.location.href =
-
-            'https://script.google.com/macros/s/AKfycbxRNJvUumDLBz44jpRFk0u35XOVRMmQMwzHfEPJAjloRaNle12_DBjPt8hWuh3QwOfK-Q/exec' +
-
+            WEDDING_APP_URL +
             '?souvenirId=' +
-
             encodeURIComponent(
               qrCodeMessage
             );
-
 
         });
 
@@ -319,24 +226,14 @@ function startScanner() {
     },
 
 
-    /*
-    QR BELUM TERBACA
-    */
-
-
     function(errorMessage) {
 
+      // QR belum terbaca
       // Normal
-      // Tidak perlu melakukan apa-apa
 
     }
 
   )
-
-
-  /*
-  ERROR MEMBUKA KAMERA
-  */
 
 
   .catch(function(error) {
@@ -358,16 +255,12 @@ function startScanner() {
 
 
     showResult(
-
       '❌ ERROR KAMERA:<br><br>' +
-
       String(error)
-
     );
 
 
   });
-
 
 }
 
@@ -378,9 +271,7 @@ SHOW RESULT
 =====================================
 */
 
-
 function showResult(message) {
-
 
   const result =
     document.getElementById(
@@ -395,12 +286,10 @@ function showResult(message) {
   result.innerHTML =
     message;
 
-
 }
 
 
 </script>
-
 
 </body>
 
