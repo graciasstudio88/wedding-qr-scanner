@@ -10,159 +10,73 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Wedding QR Scanner</title>
-
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  <title>Camera Test</title>
 
 </head>
 
+
 <body>
 
-  <h2>📷 Wedding QR Scanner</h2>
+  <h2>📷 Camera Test</h2>
 
-  <p id="status">
-    Arahkan kamera ke QR Code undangan
-  </p>
+  <button onclick="testCamera()">
+    BUKA KAMERA
+  </button>
 
-  <div id="reader"></div>
+  <br><br>
+
+  <video
+    id="video"
+    autoplay
+    playsinline
+    style="
+      width: 100%;
+      max-width: 500px;
+    "
+  ></video>
 
 
   <script>
 
-    let html5QrCode;
+    function testCamera() {
 
-    let isScanning = true;
+      navigator.mediaDevices
 
+        .getUserMedia({
 
-    // URL Wedding Check-in App
-    const WEDDING_APP_URL =
-      'https://script.google.com/macros/s/AKfycbxRNJvUumDLBz44jpRFk0u35XOVRMmQMwzHfEPJAjloRaNle12_DBjPt8hWuh3QwOfK-Q/exec';
+          video: {
 
+            facingMode: {
 
-    function startScanner() {
-
-      html5QrCode =
-        new Html5Qrcode('reader');
-
-
-      Html5QrCode.getCameras()
-
-        .then(function(cameras) {
-
-          if (!cameras ||
-              cameras.length === 0) {
-
-            showResult(
-              '❌ Kamera tidak ditemukan'
-            );
-
-            return;
-
-          }
-
-
-          const cameraId =
-            cameras[
-              cameras.length - 1
-            ].id;
-
-
-          html5QrCode.start(
-
-            cameraId,
-
-            {
-              fps: 10,
-
-              qrbox: {
-                width: 250,
-                height: 250
-              }
-
-            },
-
-
-            function(qrCodeMessage) {
-
-              if (!isScanning) {
-                return;
-              }
-
-
-              isScanning = false;
-
-
-              document.getElementById(
-                'status'
-              ).innerHTML =
-                '✅ QR berhasil! Membuka data tamu...';
-
-
-              // Stop kamera dulu
-              html5QrCode.stop()
-
-                .then(function() {
-
-                  // Kembali ke Wedding App
-                  window.location.href =
-                    WEDDING_APP_URL +
-                    '?guestId=' +
-                    encodeURIComponent(
-                      qrCodeMessage
-                    );
-
-                })
-
-                .catch(function() {
-
-                  // Kalau stop kamera error,
-                  // tetap kembali ke Wedding App
-                  window.location.href =
-                    WEDDING_APP_URL +
-                    '?guestId=' +
-                    encodeURIComponent(
-                      qrCodeMessage
-                    );
-
-                });
-
-            },
-
-
-            function(errorMessage) {
-
-              // QR belum ditemukan
+              ideal: 'environment'
 
             }
 
-          );
+          }
+
+        })
+
+        .then(function(stream) {
+
+          document.getElementById(
+            'video'
+          ).srcObject =
+            stream;
 
         })
 
         .catch(function(error) {
 
-          showResult(
-            '❌ Error kamera: ' +
-            error
+          alert(
+            'ERROR:\n\n' +
+            error.name +
+            '\n' +
+            error.message
           );
 
         });
 
     }
-
-
-    function showResult(message) {
-
-      document.body.insertAdjacentHTML(
-        'beforeend',
-        '<p>' + message + '</p>'
-      );
-
-    }
-
-
-    // OTOMATIS BUKA KAMERA
-    startScanner();
 
   </script>
 
