@@ -26,8 +26,6 @@
 
   <div id="reader"></div>
 
-  <div id="result"></div>
-
 
   <script>
 
@@ -36,9 +34,9 @@
     let isScanning = true;
 
 
-    // URL Apps Script API
-    const API_URL =
-      'https://script.google.com/macros/s/AKfycbyOWv11eweNekfzqmhGRCp4n7TYhaomqBWIDfuCdyce/exec';
+    // URL Wedding Check-in App
+    const WEDDING_APP_URL =
+      'https://script.google.com/macros/s/AKfycbxRNJvUumDLBz44jpRFk0u35XOVRMmQMwzHfEPJAjloRaNle12_DBjPt8hWuh3QwOfK-Q/exec';
 
 
     function startScanner() {
@@ -47,7 +45,7 @@
         new Html5Qrcode('reader');
 
 
-      Html5Qrcode.getCameras()
+      Html5QrCode.getCameras()
 
         .then(function(cameras) {
 
@@ -97,15 +95,26 @@
               document.getElementById(
                 'status'
               ).innerHTML =
-                '⏳ Mencari data tamu...';
+                '✅ QR berhasil! Membuka data tamu...';
 
 
-              html5QrCode.stop();
+              html5QrCode.stop()
 
 
-              getGuestName(
-                qrCodeMessage
-              );
+                .then(function() {
+
+                  setTimeout(function() {
+
+                    window.location.href =
+                      WEDDING_APP_URL +
+                      '?guestId=' +
+                      encodeURIComponent(
+                        qrCodeMessage
+                      );
+
+                  }, 500);
+
+                });
 
             },
 
@@ -132,72 +141,12 @@
     }
 
 
-    function getGuestName(guestId) {
-
-      const url =
-        API_URL +
-        '?action=getGuest' +
-        '&guestId=' +
-        encodeURIComponent(guestId);
-
-
-      fetch(url)
-
-        .then(function(response) {
-
-          return response.json();
-
-        })
-
-        .then(function(data) {
-
-          if (!data.success) {
-
-            showResult(
-              '❌ Guest tidak ditemukan'
-            );
-
-            return;
-
-          }
-
-
-          document.getElementById(
-            'status'
-          ).innerHTML =
-            '✅ QR berhasil dibaca';
-
-
-          document.getElementById(
-            'result'
-          ).innerHTML =
-
-            '<h1>👤 ' +
-            data.guestName +
-            '</h1>' +
-
-            '<p>Silakan lanjutkan ke proses check-in</p>';
-
-        })
-
-        .catch(function(error) {
-
-          showResult(
-            '❌ Gagal mengambil data tamu: ' +
-            error
-          );
-
-        });
-
-    }
-
-
     function showResult(message) {
 
-      document.getElementById(
-        'result'
-      ).innerHTML =
-        message;
+      document.body.insertAdjacentHTML(
+        'beforeend',
+        '<p>' + message + '</p>'
+      );
 
     }
 
