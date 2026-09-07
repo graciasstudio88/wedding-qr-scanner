@@ -1,43 +1,188 @@
-<script>
+<!DOCTYPE html>
+<html>
 
-function testCamera() {
+<head>
 
-  document.getElementById('result').innerHTML =
-    '⏳ Meminta akses kamera belakang...';
+  <meta charset="UTF-8">
 
-  navigator.mediaDevices
-    .getUserMedia({
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-      video: {
-        facingMode: {
-          ideal: 'environment'
-        }
-      },
+  <title>Camera Test</title>
 
-      audio: false
+</head>
 
-    })
 
-    .then(function(stream) {
+<body>
 
-      document.getElementById('result').innerHTML =
-        '✅ KAMERA BELAKANG BERHASIL!';
+  <h2>📷 Camera Test</h2>
 
-      document.getElementById('video').srcObject =
-        stream;
+  <p id="result">
+    Tekan tombol untuk membuka kamera belakang
+  </p>
 
-    })
 
-    .catch(function(error) {
+  <button onclick="testCamera()">
+    📷 BUKA KAMERA BELAKANG
+  </button>
 
-      document.getElementById('result').innerHTML =
-        '❌ ERROR: ' +
-        error.name +
-        '<br>' +
-        error.message;
 
-    });
+  <br><br>
 
-}
 
-</script>
+  <video
+    id="video"
+    autoplay
+    playsinline
+    style="
+      width: 100%;
+      max-width: 500px;
+    "
+  ></video>
+
+
+  <script>
+
+    let currentStream = null;
+
+
+    function testCamera() {
+
+
+      document.getElementById(
+        'result'
+      ).innerHTML =
+        '⏳ Meminta akses kamera belakang...';
+
+
+      // Jika kamera sebelumnya masih aktif
+      if (currentStream) {
+
+        currentStream
+          .getTracks()
+          .forEach(function(track) {
+
+            track.stop();
+
+          });
+
+      }
+
+
+      navigator.mediaDevices
+
+        .getUserMedia({
+
+          video: {
+
+            facingMode: {
+
+              exact: 'environment'
+
+            }
+
+          },
+
+          audio: false
+
+        })
+
+
+        .then(function(stream) {
+
+
+          currentStream = stream;
+
+
+          document.getElementById(
+            'result'
+          ).innerHTML =
+            '✅ KAMERA BELAKANG BERHASIL DIBUKA!';
+
+
+          document.getElementById(
+            'video'
+          ).srcObject =
+            stream;
+
+
+        })
+
+
+        .catch(function(error) {
+
+
+          document.getElementById(
+            'result'
+          ).innerHTML =
+
+            '❌ ERROR KAMERA:<br><br>' +
+
+            '<b>Nama:</b> ' +
+            error.name +
+
+            '<br><br>' +
+
+            '<b>Pesan:</b> ' +
+            error.message +
+
+            '<br><br>' +
+
+            '<b>Error:</b> ' +
+            String(error);
+
+
+        });
+
+    }
+
+
+    function stopCamera() {
+
+
+      if (!currentStream) {
+        return;
+      }
+
+
+      currentStream
+        .getTracks()
+        .forEach(function(track) {
+
+          track.stop();
+
+        });
+
+
+      currentStream = null;
+
+
+      document.getElementById(
+        'result'
+      ).innerHTML =
+        '📷 Kamera dihentikan';
+
+
+      document.getElementById(
+        'video'
+      ).srcObject =
+        null;
+
+
+    }
+
+  </script>
+
+
+  <br>
+
+  <button onclick="stopCamera()">
+    ⛔ STOP KAMERA
+  </button>
+
+
+</body>
+
+</html>
